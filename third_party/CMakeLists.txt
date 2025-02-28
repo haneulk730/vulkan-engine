@@ -27,3 +27,6 @@ if(TARGET update_mappings)
   set_target_properties(update_mappings PROPERTIES FOLDER "ThirdParty")
 endif()
 set_property(TARGET glfw PROPERTY FOLDER "ThirdParty")
+
+# Abseil
+add_subdirectory(abseil-cpp)
