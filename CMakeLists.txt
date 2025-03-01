@@ -10,12 +10,19 @@ endif()
 
 project(VulkanEngine)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 find_package(Vulkan REQUIRED)
 
 option(VULKAN_SKIP_SAMPLES "Don't build samples" OFF)
 
 # Add third party libraries
 add_subdirectory(third_party)
+
+# Add vulkan engine
+add_subdirectory(engine)
 
 if(NOT VULKAN_SKIP_SAMPLES)
   # Add vulkan samples

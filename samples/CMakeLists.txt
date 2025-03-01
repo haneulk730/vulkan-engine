@@ -3,7 +3,7 @@ project(samples LANGUAGES C CXX)
 
 function(add_demo NAME)
   add_executable(${NAME} ${NAME}.cpp)
-  target_link_libraries(${NAME} PRIVATE Vulkan::Vulkan glm glfw)
+  target_link_libraries(${NAME} PRIVATE backend glm glfw)
   set_target_properties(${NAME} PROPERTIES FOLDER Samples)
 endfunction()
 

@@ -1,8 +1,12 @@
 ﻿#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <backend/Platform.h>
+#include <private/backend/PlatformFactory.h>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
+
+using namespace engine::backend;
 
 class VulkanApp {
  public:
@@ -14,7 +18,11 @@ class VulkanApp {
   }
 
  private:
-  GLFWwindow* window;
+  GLFWwindow* mWindow;
+
+  Driver* mDriver;
+
+  Platform* mPlatform;
 
   void initWindow() {
     glfwInit();
@@ -22,19 +30,24 @@ class VulkanApp {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    mWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
   }
 
-  void initVulkan() {}
+  void initVulkan() {
+    mPlatform = PlatformFactory::create();
+    mDriver = mPlatform->createDriver();
+  }
 
   void mainLoop() {
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(mWindow)) {
       glfwPollEvents();
     }
   }
 
   void cleanup() {
-    glfwDestroyWindow(window);
+    PlatformFactory::destroy(&mPlatform);
+
+    glfwDestroyWindow(mWindow);
 
     glfwTerminate();
   }
