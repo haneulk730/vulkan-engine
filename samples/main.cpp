@@ -1,6 +1,6 @@
-﻿#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+﻿#include <GLFW/glfw3.h>
 #include <backend/Platform.h>
+#include <private/backend/Driver.h>
 #include <private/backend/PlatformFactory.h>
 
 const uint32_t WIDTH = 800;
@@ -45,6 +45,8 @@ class VulkanApp {
   }
 
   void cleanup() {
+    mDriver->terminate();
+
     PlatformFactory::destroy(&mPlatform);
 
     glfwDestroyWindow(mWindow);
