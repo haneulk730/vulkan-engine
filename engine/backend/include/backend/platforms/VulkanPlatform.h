@@ -24,8 +24,11 @@ class VulkanPlatform : public Platform {
 
   VkInstance getInstance() const noexcept;
 
+  VkPhysicalDevice getPhysicalDevice() const noexcept;
+
  private:
   VkInstance mInstance;
+  VkPhysicalDevice mPhysicalDevice;
   VulkanContext mContext;
 };
 

@@ -9,6 +9,7 @@ namespace engine::backend {
 
 namespace {
 
+#ifndef NDEBUG
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT severity,
     VkDebugUtilsMessageTypeFlagsEXT types,
@@ -22,9 +23,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(
   }
   return VK_FALSE;
 }
+#endif
 
 }  // anonymous namespace
 
+#ifndef NDEBUG
 using DebugUtils = VulkanDriver::DebugUtils;
 DebugUtils* DebugUtils::mSingleton = nullptr;
 
@@ -75,12 +78,15 @@ void DebugUtils::setName(VkObjectType type, uint64_t handle, char const* name) {
   info.pObjectName = name;
   vkSetDebugUtilsObjectNameEXT(impl->mDevice, &info);
 }
+#endif
 
 inline VulkanDriver::VulkanDriver(VulkanPlatform* mPlatform,
                                   VulkanContext const& context) noexcept
     : mPlatform(mPlatform), mContext(context) {
+#ifndef NDEBUG
   DebugUtils::mSingleton =
       new DebugUtils(mPlatform->getInstance(), VK_NULL_HANDLE, &context);
+#endif
 }
 
 VulkanDriver::~VulkanDriver() noexcept = default;
@@ -91,8 +97,10 @@ Driver* engine::backend::VulkanDriver::create(
 }
 
 void VulkanDriver::terminate() {
+#ifndef NDEBUG
   assert(DebugUtils::mSingleton);
   delete DebugUtils::mSingleton;
+#endif
 
   mPlatform->terminate();
 }

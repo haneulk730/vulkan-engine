@@ -13,6 +13,7 @@ class VulkanDriver final : public DriverBase {
   static Driver* create(VulkanPlatform* mPlatform,
                         VulkanContext const& context) noexcept;
 
+#ifndef NDEBUG
   class DebugUtils {
    public:
     static void setName(VkObjectType type, uint64_t handle, char const* name);
@@ -33,6 +34,7 @@ class VulkanDriver final : public DriverBase {
 
     friend class VulkanDriver;
   };
+#endif
 
   inline VulkanDriver(VulkanPlatform* mPlatform,
                       VulkanContext const& context) noexcept;
