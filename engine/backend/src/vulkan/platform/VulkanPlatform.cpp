@@ -168,6 +168,35 @@ VkInstance createInstance(ExtensionSet const& requiredExts) {
   return mInstance;
 }
 
+VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice,
+                             uint32_t graphicsQueueFamilyIndex) {
+  VkDevice device;
+  float queuePriority[] = {1.0f};
+  VkDeviceCreateInfo deviceCreateInfo{};
+  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+  VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
+  deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  deviceQueueCreateInfo.queueFamilyIndex = graphicsQueueFamilyIndex;
+  deviceQueueCreateInfo.queueCount = 1;
+  deviceQueueCreateInfo.pQueuePriorities = &queuePriority[0];
+
+  deviceCreateInfo.queueCreateInfoCount = 1;
+  deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
+
+  VkPhysicalDeviceFeatures enabledFeatures{};
+  deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
+
+  deviceCreateInfo.enabledExtensionCount = 0;
+
+  VkResult result =
+      vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
+  CHECK(result == VK_SUCCESS)
+      << "vkCreateDevice error=" << static_cast<int32_t>(result);
+
+  return device;
+}
+
 std::vector<VkQueueFamilyProperties>
 getPhysicalDeviceQueueFamilyPropertiesHelper(VkPhysicalDevice device) {
   uint32_t queueFamiliesCount;
@@ -267,7 +296,10 @@ VkPhysicalDevice selectPhysicalDevice(VkInstance instance) {
 
 }  // anonymous namespace
 
-void VulkanPlatform::terminate() { vkDestroyInstance(mInstance, nullptr); }
+void VulkanPlatform::terminate() {
+  vkDestroyDevice(mDevice, nullptr);
+  vkDestroyInstance(mInstance, nullptr);
+}
 
 Driver* VulkanPlatform::createDriver() noexcept {
   VkResult result = volkInitialize();
@@ -286,6 +318,21 @@ Driver* VulkanPlatform::createDriver() noexcept {
 
   printDeviceInfo(mInstance, mPhysicalDevice);
 
+  mGraphicsQueueFamilyIndex =
+      identifyGraphicsQueueFamilyIndex(mPhysicalDevice, VK_QUEUE_GRAPHICS_BIT);
+
+  mGraphicsQueueIndex = 0;
+
+  mDevice = createLogicalDevice(mPhysicalDevice, mGraphicsQueueFamilyIndex);
+
+  assert(mDevice != VK_NULL_HANDLE);
+  assert(mGraphicsQueueFamilyIndex != INVALID_VK_INDEX);
+  assert(mGraphicsQueueIndex != INVALID_VK_INDEX);
+
+  vkGetDeviceQueue(mDevice, mGraphicsQueueFamilyIndex, mGraphicsQueueIndex,
+                   &mGraphicsQueue);
+  assert(mGraphicsQueue != VK_NULL_HANDLE);
+
   context.mDebugUtilsSupported =
       setContains(instExts, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
@@ -302,14 +349,32 @@ Driver* VulkanPlatform::createDriver() noexcept {
 VulkanPlatform::VulkanPlatform()
     : mInstance(VK_NULL_HANDLE),
       mPhysicalDevice(VK_NULL_HANDLE),
+      mDevice(VK_NULL_HANDLE),
+      mGraphicsQueueFamilyIndex(INVALID_VK_INDEX),
+      mGraphicsQueueIndex(INVALID_VK_INDEX),
+      mGraphicsQueue(VK_NULL_HANDLE),
       mContext({}) {}
 
 VulkanPlatform::~VulkanPlatform() = default;
 
 VkInstance VulkanPlatform::getInstance() const noexcept { return mInstance; }
 
+VkDevice VulkanPlatform::getDevice() const noexcept { return mDevice; }
+
 VkPhysicalDevice VulkanPlatform::getPhysicalDevice() const noexcept {
   return mPhysicalDevice;
+}
+
+uint32_t VulkanPlatform::getGraphicsQueueFamilyIndex() const noexcept {
+  return mGraphicsQueueFamilyIndex;
+}
+
+uint32_t VulkanPlatform::getGraphicsQueueIndex() const noexcept {
+  return mGraphicsQueueIndex;
+}
+
+VkQueue VulkanPlatform::getGraphicsQueue() const noexcept {
+  return mGraphicsQueue;
 }
 
 }  // namespace engine::backend

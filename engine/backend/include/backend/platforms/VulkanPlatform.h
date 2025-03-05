@@ -24,11 +24,23 @@ class VulkanPlatform : public Platform {
 
   VkInstance getInstance() const noexcept;
 
+  VkDevice getDevice() const noexcept;
+
   VkPhysicalDevice getPhysicalDevice() const noexcept;
+
+  uint32_t getGraphicsQueueFamilyIndex() const noexcept;
+
+  uint32_t getGraphicsQueueIndex() const noexcept;
+
+  VkQueue getGraphicsQueue() const noexcept;
 
  private:
   VkInstance mInstance;
   VkPhysicalDevice mPhysicalDevice;
+  VkDevice mDevice;
+  uint32_t mGraphicsQueueFamilyIndex;
+  uint32_t mGraphicsQueueIndex;
+  VkQueue mGraphicsQueue;
   VulkanContext mContext;
 };
 
