@@ -21,6 +21,9 @@ list(
   src/vulkan/VulkanContext.h
   src/vulkan/VulkanDriver.cpp
   src/vulkan/VulkanDriver.h)
+if(WIN32)
+  list(APPEND SRCS src/vulkan/platform/VulkanPlatformWindows.cpp)
+endif()
 
 include_directories(${PUBLIC_HDR_DIR})
 include_directories(src)

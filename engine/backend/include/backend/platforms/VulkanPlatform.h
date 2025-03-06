@@ -35,6 +35,9 @@ class VulkanPlatform : public Platform {
   VkQueue getGraphicsQueue() const noexcept;
 
  private:
+  static VkSurfaceKHR createVkSurfaceKHR(void* nativeWindow,
+                                         VkInstance instance) noexcept;
+
   VkInstance mInstance;
   VkPhysicalDevice mPhysicalDevice;
   VkDevice mDevice;
